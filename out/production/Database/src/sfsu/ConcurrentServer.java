@@ -89,7 +89,7 @@ public class ConcurrentServer implements Runnable {
                 
                 
                 // Pretend some heavy lifting is going on.
-                Thread.sleep(5000);
+                Thread.sleep(10);
 
                 // Create a dummy response and send it to the client.
                 //deleted dummy response since I created one above

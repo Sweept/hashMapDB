@@ -40,16 +40,15 @@ public class Client {
 	 
 	    public void run() {
 	        try {
-	            // Create a socket and attempt to connect.
-	            Socket clientSocket = new Socket(serverAddress, port);
 	            for (int i = 0; i < 100; i++) {
+		            // Create a socket and attempt to connect.
+		            Socket clientSocket = new Socket(serverAddress, port);
 		            Long key = (long) (Math.random() * 100);
 		            if (keys.indexOf(key) == -1) {
 		            	continue;
 		            }
 		            System.out.println("Executing : " + name);
-		            TimeUnit.SECONDS.sleep(10);
-		            Long value = key * 33;
+		            TimeUnit.MILLISECONDS.sleep(10);
 		            // Create a dummy request. None of the arguments are important, as long as the request is syntactically valid.
 		            keys.remove(keys.indexOf(key));
 		            DatabaseProtos.Request request = DatabaseProtos.Request.newBuilder()
@@ -64,15 +63,10 @@ public class Client {
 		            // Receive and parse a response from the server.
 		            DatabaseProtos.Response response = DatabaseProtos.Response.parseDelimitedFrom(clientSocket.getInputStream());
 		            System.out.println(String.format("Response received: %s\n", response));
-		            if(response.getValue() == value.toString()) {
-			            System.out.println("database is fine");
-		            } else {
-			            System.out.println("database is corrupt");
-		            }
+		            // Close the sockets and finish.
+		            clientSocket.close();
 	            }
 
-	            // Close the sockets and finish.
-	            clientSocket.close();
 	        } catch (InterruptedException e) {
 	            e.printStackTrace();
 	        } catch (UnknownHostException e) {
@@ -98,14 +92,14 @@ public class Client {
 	    public void run() {
 	        try {
 	            // Create a socket and attempt to connect.
-	            Socket clientSocket = new Socket(serverAddress, port);
 	            for (int i = 0; i < 100; i++) {
+		            Socket clientSocket = new Socket(serverAddress, port);
 		            Long key = (long) (Math.random() * 100);
 		            if (keys.indexOf(key) == -1) {
 		            	continue;
 		            }
 		            System.out.println("Executing : " + name);
-		            TimeUnit.SECONDS.sleep(10);
+		            TimeUnit.MILLISECONDS.sleep(10);
 		            Long value = key * 33;
 		            // Create a dummy request. None of the arguments are important, as long as the request is syntactically valid.
 		            DatabaseProtos.Request request = DatabaseProtos.Request.newBuilder()
@@ -125,10 +119,10 @@ public class Client {
 		            } else {
 			            System.out.println("database is corrupt");
 		            }
+		            clientSocket.close();
 	            }
 
 	            // Close the sockets and finish.
-	            clientSocket.close();
 	        } catch (InterruptedException e) {
 	            e.printStackTrace();
 	        } catch (UnknownHostException e) {
@@ -154,14 +148,14 @@ public class Client {
 	    public void run() {
 	        try {
 	            // Create a socket and attempt to connect.
-	            Socket clientSocket = new Socket(serverAddress, port);
 	            for (int i = 0; i < 100; i++) {
+		            Socket clientSocket = new Socket(serverAddress, port);
 		            Long key = (long) (Math.random() * 100);
 		            if (keys.indexOf(key) != -1) {
 		            	continue;
 		            }
 		            System.out.println("Executing : " + name);
-		            TimeUnit.SECONDS.sleep(1);
+		            TimeUnit.MILLISECONDS.sleep(10);
 		            Long value = key * 33;
 		            // Create a dummy request. None of the arguments are important, as long as the request is syntactically valid.
 		            DatabaseProtos.Request request = DatabaseProtos.Request.newBuilder()
@@ -169,9 +163,6 @@ public class Client {
 		                    .setKey(key.toString())
 		                    .setValue(value.toString())
 		                    .build();
-	
-		            keys.addElement(key);
-	
 		            // Write the request message to the socket.
 		            request.writeDelimitedTo(clientSocket.getOutputStream());
 		            System.out.println("Request sent, waiting for response.");
@@ -179,10 +170,13 @@ public class Client {
 		            // Receive and parse a response from the server.
 		            DatabaseProtos.Response response = DatabaseProtos.Response.parseDelimitedFrom(clientSocket.getInputStream());
 		            System.out.println(String.format("Response received: %s\n", response));
+		        	
+		            keys.addElement(key);
+	
+		            // Close the sockets and finish.
+		            clientSocket.close();
 	            }
 
-	            // Close the sockets and finish.
-	            clientSocket.close();
 	        } catch (InterruptedException e) {
 	            e.printStackTrace();
 	        } catch (UnknownHostException e) {
