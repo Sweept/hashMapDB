@@ -6,9 +6,9 @@ import java.net.Socket;
  * Verifies that the database server is able to receive a client request. Prints the response from the server.
  *
  * Invocation and arguments:
- *   java -cp lib/*:out/src/sfsu sfsu.DummyTestClient <IP> <port>
+ *   java -cp lib/*:out/src/sfsu sfsu.TestClient <IP> <port>
  */
-public class DummyTestClient {
+public class TestClient {
 
     /**
      * Connects to the sever process. Sends a dummy request and receives a response.
@@ -17,7 +17,7 @@ public class DummyTestClient {
      */
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
-            System.out.println("Usage: DummyTestClient <IP> <port>");
+            System.out.println("Usage: TestClient <IP> <port>");
             return;
         }
 
