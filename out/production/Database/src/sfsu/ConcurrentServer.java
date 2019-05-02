@@ -58,7 +58,7 @@ public class ConcurrentServer implements Runnable {
             	DatabaseProtos.Response res = DatabaseProtos.Response.newBuilder()
             			.build();
                 DatabaseProtos.Request request = DatabaseProtos.Request.parseDelimitedFrom(socket.getInputStream());
-                System.out.println(String.format("Received request: %s\n", request));
+                System.out.println(String.format("Server: Received request: %s\n", request));
                 
                 //if parsing the request to find which operation client is wanting to do, i.e. get,put, or delete
                 DatabaseProtos.Request.OperationType op = request.getOperation();
@@ -94,7 +94,7 @@ public class ConcurrentServer implements Runnable {
                 // Create a dummy response and send it to the client.
                 //deleted dummy response since I created one above
                 res.writeDelimitedTo(socket.getOutputStream());
-                System.out.println(String.format("Sent response: %s\n", res));
+                System.out.println(String.format("Server: Sent response: %s\n", res));
 
                 // This interaction is done. A better server would allow the client to request other things in the same
                 // connection. Not here.
@@ -115,11 +115,11 @@ public class ConcurrentServer implements Runnable {
         try {
             // Create a server socket for the specified port.
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println(String.format("Server on port %d ready\n", port));
+            System.out.println(String.format("Server: Server on port %d ready\n", port));
 
             // Listen for clients until interrupted.
             while (true) {
-                System.out.println("Accepting the next client\n");
+                System.out.println("Server: Accepting the next client\n");
                 Socket clientSocket = serverSocket.accept();
 
                 // Create a new future using the ClientParser. The future will start to run as soon as there is a thread
