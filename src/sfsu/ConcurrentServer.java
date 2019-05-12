@@ -18,6 +18,8 @@ public class ConcurrentServer implements Runnable {
 
     // The port that this server will bind to.
     private final int port;
+    //i created a db variable to hold the key-value pairs
+    private static final Database db = new Database();
 
     /**
      * Creates a server in the specified port. The server will not start to listen until run is called.
@@ -53,18 +55,46 @@ public class ConcurrentServer implements Runnable {
         public void run() {
             try {
                 // Parse the client request directly from the socket. Thank you protobuf.
+            	DatabaseProtos.Response res = DatabaseProtos.Response.newBuilder()
+            			.build();
                 DatabaseProtos.Request request = DatabaseProtos.Request.parseDelimitedFrom(socket.getInputStream());
-                System.out.println(String.format("Received request: %s\n", request));
-
+                System.out.println(String.format("Server: Received request: %s\n", request));
+                
+                //if parsing the request to find which operation client is wanting to do, i.e. get,put, or delete
+                DatabaseProtos.Request.OperationType op = request.getOperation();
+            	String key =request.getKey();
+                if( op == DatabaseProtos.Request.OperationType.GET )
+                {
+                	//
+                	String value = db.get(request.getKey());
+                	res = DatabaseProtos.Response.newBuilder()
+                            .setValue(value)
+                            .setKey(key)
+                            .build();
+                }else if ( op == DatabaseProtos.Request.OperationType.PUT )
+                {
+                	String value = request.getValue();
+                	db.put(key, value);
+                	res = DatabaseProtos.Response.newBuilder()
+                            .setValue(value)
+                            .setKey(key)
+                            .build();
+                }else if ( op == DatabaseProtos.Request.OperationType.DELETE )
+                {
+                	db.delete(key);
+                	res = DatabaseProtos.Response.newBuilder()
+                            .setKey(key)
+                            .build();
+                }
+                
+                
                 // Pretend some heavy lifting is going on.
-                Thread.sleep(5000);
+                Thread.sleep(10);
 
                 // Create a dummy response and send it to the client.
-                DatabaseProtos.Response response = DatabaseProtos.Response.newBuilder()
-                        .setValue("This is a test value")
-                        .setKey("This is a test key")
-                        .build();
-                response.writeDelimitedTo(socket.getOutputStream());
+                //deleted dummy response since I created one above
+                res.writeDelimitedTo(socket.getOutputStream());
+                System.out.println(String.format("Server: Sent response: %s\n", res));
 
                 // This interaction is done. A better server would allow the client to request other things in the same
                 // connection. Not here.
@@ -85,11 +115,11 @@ public class ConcurrentServer implements Runnable {
         try {
             // Create a server socket for the specified port.
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println(String.format("Server on port %d ready\n", port));
+            System.out.println(String.format("Server: Server on port %d ready\n", port));
 
             // Listen for clients until interrupted.
             while (true) {
-                System.out.println("Accepting the next client\n");
+                System.out.println("Server: Accepting the next client\n");
                 Socket clientSocket = serverSocket.accept();
 
                 // Create a new future using the ClientParser. The future will start to run as soon as there is a thread
